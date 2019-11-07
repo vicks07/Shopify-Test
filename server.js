@@ -14,32 +14,59 @@ app.listen(port, ()=>{
 
 
 app.get('/orders',async(req,res)=>{
-
-    const orderResponse = await data.GetOrders({skipValue: 0, limitValue: 4});
-
-    return res.status(200).send(orderResponse);
+    try{
+        const orderResponse = await data.GetOrders({skipValue: 0, limitValue: 4});
+        return res.status(200).send(orderResponse);
+    }
+    catch(err){
+        return res.status(400).send({
+            error: 'Something went wrong'
+        })
+    }
+    
 });
 
 app.get('/order/:id',async(req,res)=>{
-    const id = req.params.id;
+    try{
+        const id = req.params.id;
 
-    const orderResponse = await data.GetOrder({id});
-    return res.send(orderResponse);
+        const orderResponse = await data.GetOrder({id});
+        return res.send(orderResponse);
+    }
+    catch(err){
+        return res.status(400).send({
+            error: 'Something went wrong'
+        })
+    }
 })
 
 app.post('/order',async(req,res)=>{
 
-    console.log('order',req.body);
-    const newOrder = await data.NewOrder(req.body);
+    try{
+    //console.log('order',req.body);
+        const newOrder = await data.NewOrder(req.body);
 
-    return res.status(200).send(newOrder.result);
+        return res.status(200).send(newOrder.result);
+    }
+    catch(err){
+        return res.status(400).send({
+            error: 'Something went wrong'
+        })
+    }
 })
 
 app.patch('/order',async(req,res)=>{
 
-    const {id, email, phone} = req.body;
+    try{
+        const {id, email, phone} = req.body;
 
-    const orderResponse = await data.EditOrder({id, email, phone});
+        const orderResponse = await data.EditOrder({id, email, phone});
 
-    return res.status(200).send(orderResponse.result);
+        return res.status(200).send(orderResponse.result);
+    }
+    catch(err){
+        return res.status(400).send({
+            error: 'Something went wrong'
+        })
+    }
 })

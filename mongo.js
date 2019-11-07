@@ -17,6 +17,8 @@ const GetOrders = (orderFilter)=>{
     return new Promise((resolve,reject)=>{
         db.collection('orders').find({}).skip(orderFilter.skipValue).limit(orderFilter.limitValue).toArray().then(res =>{
             resolve(res);
+        }).catch(err => {
+            reject('Error');
         });
     
     })
@@ -27,6 +29,8 @@ const GetOrder = (order)=>{
     return new Promise((resolve,reject)=>{
         db.collection('orders').findOne({_id:ObjectId(order.id)}).then(res =>{
             resolve(res);
+        }).catch(err => {
+            reject('Error');
         });
     });    
 }
@@ -35,6 +39,8 @@ const NewOrder = (order)=>{
     return new Promise((resolve,reject)=>{
         db.collection('orders').insertOne(order).then(res =>{
             resolve(res);
+        }).catch(err => {
+            reject('Error');
         });
     });  
 }
@@ -43,6 +49,8 @@ const EditOrder = (order)=>{
     return new Promise((resolve,reject)=>{
         db.collection('orders').updateOne({_id:ObjectId(order.id)},{$set: order }).then(res =>{
             resolve(res);
+        }).catch(err => {
+            reject('Error');
         });
     });  
 }
