@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>Test App</title>
+  </head>
+  <body>
+    <h1>Orders</h1>
+	
+		<div class="container-fluid">
+			 <div class="modal fade" id="myModal" role="dialog">
+			 <div id="success" class="alert alert-success" style="display: none;">
+  				<strong>Success!</strong> Order has been edited <a href="#" class="alert-link"></a>.
+				</div>
+				<div id="failure" class="alert alert-danger" style="display: none;">
+  				<strong>Oops!</strong> Something went wrong!<a href="#" class="alert-link"></a>.
+				</div>
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div id="modalHeader" class="modal-header">
+          
+        </div>
+        <div id="modalBody" class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+		<div id="scrolling-wrapper">
+			<div id="cardgroup" class="card-deck">
+			</div>
+		</div>
+
+		</div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+		<script
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous"></script>
+	
+   
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  </body>
+	
+	<script>
+	const url = 'https://vik-shopify.herokuapp.com';
+	//const url = 'http:localhost:3000';
+	$( document ).ready(function() {
+    	console.log( "ready!" );
+		
+		$.ajax({
+			url: `${url}/orders`,
+			cache: false,
+			success: function(data){
+				console.log(data);
+				GetData(data);
+				//$("#results").append(html);
+			}
+		});
+		
+	});
+
+	function GetData(data){
+		let html = "";
+		console.log(data);
+		data.forEach(doc =>{
+			let id = doc._id;
+			html += `<div class="card" style="width: 18rem;">
+			<div class="card-body">
+				<h5 class="card-title">${doc.billing_address == undefined ? 'Vikram':doc.billing_address.first_name}</h5>
+				<p class="card-text"><p>Order Date : ${doc.created_at == undefined ? "NA":doc.created_at}</p>
+				<p>Phone: ${doc.phone == undefined ? "NA":doc.phone}</p>
+				<p> Number of Items: ${doc.line_items == undefined ? "NA": doc.line_items.length}
+				<p> Total Amt : ${doc.subtotal_price == undefined ? "NA" :doc.subtotal_price}</p>
+				<button id=${doc._id} onclick="EditOrderModal(this.id)" data-selector=''${doc._id}' class="btn btn-primary">Edit Order</a>
+			</div>
+				</div>`
+		})
+		$("#cardgroup").html(html);
+	}
+
+	function EditOrderModal(id){
+		GetSingleOrder(id);
+		$("#failure").hide();
+		$("#success").hide();
+	}
+
+		
+	function GetSingleOrder(id){
+					//$('#myModal').modal('toggle');
+		console.log(id);
+		$.ajax({
+				url: `${url}/order/${id}`,
+				cache: false,
+				success: function(data){
+					let header = `<h4 class="modal-title">${data.billing_address.first_name}</h4>`;
+					let email = data.contact_email == null ? 'NA': data.contact_email;
+					let body = `<form>
+					<div class="form-group">
+						<label for="email">Email Address</label>
+						<input type="email" class="form-control" value=${email} id="email" aria-describedby="emailHelp">
+					</div>
+					<div class="form-group">
+						<label for="phone">Phone Number</label>
+						<input type="text" class="form-control" id="phone" value =${data.phone} placeholder="Enter Phone Number">
+					</div>
+					<button type="button" id=${id} onclick="EditOrder(this.id)" class="btn btn-primary">Submit</button>
+					</form>`;
+									
+					$("#modalHeader").html(header);
+					$("#modalBody").html(body);
+					$('#myModal').modal('toggle');
+					
+					//GetData(data);
+					//$("#results").append(html);
+				}
+		});
+	}
+
+	function EditOrder(id){
+		let phone = $('#phone').val();
+		let email = $('#email').val();
+		//alert(phone);
+		
+		let data = {
+			id,
+			email,
+			phone
+			}
+		
+		$.ajax({
+				url: `${url}/order`,
+				cache: false,
+				type:'PATCH',
+				data: JSON.stringify(data),
+				contentType : 'application/json',
+				success: function(resp){
+					console.log('resp',resp);
+					if(resp.nModified == 1){
+						$("#success").show();
+					}
+					else{
+						$("#failure").show();
+					}
+				}
+		});
+		
+		
+	}
+
+	</script>
+</html>
